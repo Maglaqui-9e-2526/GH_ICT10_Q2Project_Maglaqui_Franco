@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TLE VIP Club Membership Verification</title>
+
+    <script>
+        window.addEventListener('unhandledrejection', function(event) {
+            if (event.reason && (event.reason.toString().includes('URL') || event.reason.toString().includes('PyScript'))) {
+                event.preventDefault();
+                console.warn('Handled PyScript URL initialization warning gracefully.');
+            }
+        });
+    </script>
+    
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brandViolet: '#6366f1',
+                        brandCyan: '#06b6d4',
+                        brandPink: '#ec4899',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float-orb-1': 'floatOrb1 10s ease-in-out infinite alternate',
+                        'float-orb-2': 'floatOrb2 12s ease-in-out infinite alternate',
+                        'gradient-glow': 'gradientGlow 6s ease infinite',
+                    },
+                    keyframes: {
+                        floatOrb1: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '100%': { transform: 'translate(50px, -40px) scale(1.2)' },
+                        },
+                        floatOrb2: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '100%': { transform: 'translate(-40px, 50px) scale(1.25)' },
+                        },
+                        gradientGlow: {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --red: #b3122b;
+            --red-dark: #7a0c1e;
+            --gold: #f0b323;
+            --gold-light: #ffd966;
+            --steel: #15161a;
+            --arc: #7df9ff;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem 1rem;
+            padding: 0.6rem 1.5rem;
+            background: linear-gradient(90deg, var(--red-dark), var(--red) 50%, var(--red-dark));
+            border-bottom: 3px solid var(--gold);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 0.55rem 1rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            text-decoration: none;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid transparent;
+            border-radius: 6px;
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: var(--gold);
+            box-shadow: 0 0 12px rgba(240, 179, 35, 0.45);
+        }
+
+        .nav-links a[aria-current="page"] {
+            color: var(--steel);
+            background: var(--gold);
+            border-color: var(--gold-light);
+        }
+
+        .nav-toggle {
+            display: none;
+            padding: 0.45rem 0.8rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--gold-light);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 720px) {
+            .nav-toggle { display: block; }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+            .nav-links.open { display: flex; }
+            .nav-links a { text-align: center; }
+        }
+
+        .font-mono-code {
+            font-family: 'Space Mono', monospace;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 50px -10px rgba(99, 102, 241, 0.15), 0 10px 25px -5px rgba(6, 182, 212, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            position: relative;
+        }
+
+        form br {
+            display: none;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #475569;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.75rem;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #e2e8f0;
+            border-radius: 0.875rem;
+            color: #0f172a;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input[type="text"]::placeholder {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        input[type="text"]:focus {
+            border-color: #6366f1;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 8px 20px -4px rgba(99, 102, 241, 0.15);
+        }
+
+        input#first_name {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 0.875rem center;
+        }
+
+        input#last_name {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3Cpath d='M16 11l2 2 4-4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 0.875rem center;
+        }
+
+        input[type="button"] {
+            width: 100%;
+            padding: 1.05rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+            background-size: 200% 200%;
+            animation: gradientGlow 6s ease infinite;
+            border: none;
+            border-radius: 0.875rem;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 12px 30px -6px rgba(124, 58, 237, 0.45), 0 4px 12px rgba(236, 72, 153, 0.25);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input[type="button"]:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 18px 36px -6px rgba(124, 58, 237, 0.55), 0 8px 18px rgba(236, 72, 153, 0.35);
+            filter: brightness(1.08);
+        }
+
+        #result {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .result-badge-card {
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            animation: cardAppear 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(16px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .tab-btn.active {
+            background: #6366f1;
+            color: #ffffff;
+            border-color: #4f46e5;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen text-slate-800 flex flex-col justify-between selection:bg-pink-500 selection:text-white bg-slate-50">
+
+    <nav class="navbar" aria-label="Main navigation">
+        <a class="nav-brand" href="index.html">
+            TLE Club
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"
+                onclick="var l=document.getElementById('nav-links');var o=l.classList.toggle('open');this.setAttribute('aria-expanded',o);">
+            Menu
+        </button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html" aria-current="page">Homepage</a></li>
+            <li><a href="element-checker.html">Element Checker</a></li>
+            <li><a href="club-members.html">School Club Members</a></li>
+            <li><a href="creator.html">Meet the Creator</a></li>
+        </ul>
+    </nav>
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute -top-24 -left-24 w-[32rem] h-[32rem] rounded-full bg-gradient-to-tr from-cyan-300/60 to-indigo-400/50 blur-[100px] animate-float-orb-1"></div>
+        <div class="absolute top-1/3 -right-24 w-[36rem] h-[36rem] rounded-full bg-gradient-to-br from-fuchsia-300/50 to-pink-400/50 blur-[110px] animate-float-orb-2"></div>
+        <div class="absolute -bottom-24 left-1/4 w-[30rem] h-[30rem] rounded-full bg-gradient-to-tr from-amber-200/60 to-indigo-300/50 blur-[100px] animate-pulse-slow"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/60 via-transparent to-slate-100/80"></div>
+    </div>
+
+    <div class="relative z-10 max-w-5xl mx-auto px-4 py-10 sm:py-16 w-full flex-grow flex flex-col justify-center items-center">
+
+        <header class="text-center mb-10 max-w-xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 border border-indigo-200 text-xs font-black text-indigo-700 mb-4 shadow-md backdrop-blur-md">
+                <i data-lucide="sparkles" class="w-4 h-4 text-amber-500 fill-amber-400"></i>
+                <span class="tracking-wide uppercase">TLE VIP Membership Verification</span>
+            </div>
+            <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 mb-4">
+                Club <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Checker System</span>
+            </h1>
+            <p class="text-slate-600 font-medium text-base sm:text-lg">
+                Verify official club eligibility instantly with executive accreditation parameters.
+            </p>
+        </header>
+
+        <div class="w-full max-w-md mx-auto">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 relative">
+                
+                <div class="flex items-center justify-between border-b border-slate-200/80 pb-4 mb-6">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-ping"></div>
+                        <span class="text-xs font-black text-slate-700 tracking-wider uppercase font-mono">Accreditation Desk</span>
+                    </div>
+                    <span class="text-[11px] font-mono px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold">
+                        PyScript Engine
+                    </span>
+                </div>
+
+                <form>
+                    <div class="input-group">
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" placeholder="Enter your First Name"><br>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" placeholder="Enter your Last Name"><br>
+                    </div>
+
+                    <input type="button" py-click="view_user" onclick="view_user_js_fallback(event)" value="Enter">
+                </form>
+
+                <div id="result" class="mt-6"></div>
+
+                <div class="mt-8 pt-5 border-t border-slate-200/80">
+                    <div class="flex items-center justify-between text-xs text-slate-600 mb-3">
+                        <span class="font-bold text-slate-800 uppercase tracking-wider">Quick Test Candidates:</span>
+                        <span class="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">Click to load</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="quickFill('Franco', 'Maglaqui')" class="px-3 py-1.5 rounded-xl bg-white/90 border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 text-xs font-bold text-slate-700 hover:text-indigo-600 transition-all shadow-sm">
+                            Franco Maglaqui
+                        </button>
+                        <button type="button" onclick="quickFill('Joel', 'Gonzales')" class="px-3 py-1.5 rounded-xl bg-white/90 border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 text-xs font-bold text-slate-700 hover:text-indigo-600 transition-all shadow-sm">
+                            Joel Gonzales
+                        </button>
+                        <button type="button" onclick="quickFill('Chester', 'Roxas')" class="px-3 py-1.5 rounded-xl bg-white/90 border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 text-xs font-bold text-slate-700 hover:text-indigo-600 transition-all shadow-sm">
+                            Chester Roxas
+                        </button>
+                        <button type="button" onclick="quickFill('Alex', 'Mercer')" class="px-3 py-1.5 rounded-xl bg-white/90 border border-slate-200 hover:border-rose-400 hover:bg-rose-50 text-xs font-bold text-slate-500 hover:text-rose-600 transition-all shadow-sm">
+                            Non-Member Test
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="relative z-10 py-6 border-t border-slate-200/80 text-center text-xs font-medium text-slate-500 bg-white/80 backdrop-blur-md">
+        <p>TLE VIP Club Accreditation System &copy; 2026. Preserving pure source execution.</p>
+    </footer>
+
+    <script type="py">
+from pyscript import display, document
+
+def view_user(e):
+    document.getElementById('result').innerHTML = ' '
+    complete_name = ['Franco Maglaqui', 'Joel Gonzales', 'Ezekiel Bacay', 'Joseph Co', 'Chester Roxas']
+    f_name = document.getElementById('first_name').value
+    l_name = document.getElementById('last_name').value
+    candidate = f_name + ' ' + l_name
+    member_checker = candidate in complete_name
+
+    messages = (f'Sorry {candidate}, your name is not on the list.', f'Congratulations {candidate}! You are now part of the TLE club.')
+
+    document.getElementById('result').innerHTML = messages[member_checker]
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            const resultElement = document.getElementById('result');
+            if (resultElement) {
+                const observer = new MutationObserver(handleResultMutation);
+                observer.observe(resultElement, { childList: true, subtree: true, characterData: true });
+            }
+        });
+
+        function view_user_js_fallback(e) {
+            const f_name = document.getElementById('first_name').value.trim();
+            const l_name = document.getElementById('last_name').value.trim();
+            
+            if (!f_name || !l_name) {
+                document.getElementById('result').innerHTML = '<div class="p-3.5 text-xs rounded-xl bg-amber-50 border-2 border-amber-300 text-amber-800 font-extrabold text-center shadow-md">⚠️ Please enter both First Name and Last Name.</div>';
+                return;
+            }
+
+            const candidate = f_name + ' ' + l_name;
+            const complete_name = ['Franco Maglaqui', 'Joel Gonzales', 'Ezekiel Bacay', 'Joseph Co', 'Chester Roxas'];
+            const member_checker = complete_name.some(name => name.toLowerCase() === candidate.toLowerCase());
+
+            const messages = [
+                `Sorry ${candidate}, your name is not on the list.`,
+                `Congratulations ${candidate}! You are now part of the TLE club.`
+            ];
+
+            document.getElementById('result').innerHTML = messages[member_checker ? 1 : 0];
+        }
+
+        function handleResultMutation() {
+            const resultDiv = document.getElementById('result');
+            const text = resultDiv.innerText || '';
+
+            if (!text || text.trim() === '' || resultDiv.querySelector('.result-badge-card')) return;
+
+            if (text.includes('Congratulations')) {
+                resultDiv.innerHTML = `
+                    <div class="result-badge-card bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 border-2 border-emerald-400 shadow-xl text-emerald-950 text-center">
+                        <h4 class="text-xs font-mono font-black tracking-widest text-emerald-700 uppercase mb-1">VIP Accreditation Granted</h4>
+                        <p class="text-base font-extrabold text-emerald-900 leading-relaxed mb-3">${text}</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            } else if (text.includes('Sorry')) {
+                resultDiv.innerHTML = `
+                    <div class="result-badge-card bg-gradient-to-br from-rose-50 via-pink-50 to-rose-100 border-2 border-rose-300 shadow-xl text-rose-950 text-center">
+                        <h4 class="text-xs font-mono font-black tracking-widest text-rose-700 uppercase mb-1">Membership Not Found</h4>
+                        <p class="text-base font-extrabold text-rose-900 leading-relaxed">${text}</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        }
+
+        function quickFill(first, last) {
+            document.getElementById('first_name').value = first;
+            document.getElementById('last_name').value = last;
+            view_user_js_fallback();
+        }
+    </script>
+</body>
+</html>

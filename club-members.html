@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.3.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2024.3.1/core.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <title>2nd Quarter | Drill 2</title>
+<style>
+        :root {
+            --red: #b3122b;
+            --red-dark: #7a0c1e;
+            --gold: #f0b323;
+            --gold-light: #ffd966;
+            --steel: #15161a;
+            --steel-light: #23252c;
+            --arc: #7df9ff;
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body { 
+            height: 100%; 
+            margin: 0; 
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            font-family: 'Inter', sans-serif;
+            color: #f4f4f4;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(179, 18, 43, 0.35), transparent 55%),
+                linear-gradient(180deg, var(--steel) 0%, #0b0b0e 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation bar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem 1rem;
+            padding: 0.6rem 1.5rem;
+            background: linear-gradient(90deg, var(--red-dark), var(--red) 50%, var(--red-dark));
+            border-bottom: 3px solid var(--gold);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            text-decoration: none;
+        }
+
+        .nav-brand .mini-reactor {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff 0%, var(--arc) 35%, #1b6f78 70%, #0b2f33 100%);
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 10px var(--arc);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 0.55rem 1rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            text-decoration: none;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid transparent;
+            border-radius: 6px;
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: var(--gold);
+            box-shadow: 0 0 12px rgba(240, 179, 35, 0.45);
+        }
+
+        .nav-links a[aria-current="page"] {
+            color: var(--steel);
+            background: var(--gold);
+            border-color: var(--gold-light);
+        }
+
+        .nav-links a:focus-visible,
+        .nav-toggle:focus-visible,
+        .nav-brand:focus-visible {
+            outline: 2px solid var(--arc);
+            outline-offset: 2px;
+        }
+
+        .nav-toggle {
+            display: none;
+            padding: 0.45rem 0.8rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            color: var(--gold-light);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 720px) {
+            .nav-toggle { display: block; }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+
+            .nav-links.open { display: flex; }
+
+            .nav-links a { text-align: center; }
+        }
+
+        /* Main Container Card Styling */
+        .container {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 480px;
+            box-sizing: border-box;
+            margin: 2rem auto; /* Centers container horizontally while leaving space below navbar */
+            color: var(--text-main);
+        }
+
+        /* Headings */
+        h3 {
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form Inputs */
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .mb-3 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 1.5rem; }
+
+        /* Submit Button */
+        .btn {
+            display: inline-block;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-primary:active { transform: scale(0.98); }
+
+        #output {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+        <nav class="navbar" aria-label="Main navigation">
+        <a class="nav-brand" href="index.html">
+            TLE Club
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"
+                onclick="var l=document.getElementById('nav-links');var o=l.classList.toggle('open');this.setAttribute('aria-expanded',o);">
+            Menu
+        </button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html">Homepage</a></li>
+            <li><a href="element-checker.html">Element Checker</a></li>
+            <li><a href="club-members.html" aria-current="page">School Club Members</a></li>
+            <li><a href="creator.html">Meet the Creator</a></li>
+        </ul>
+    </nav>
+
+    <div class="container mt-5">
+        <h3 class="mb-4">Add new club member:</h3>
+        <form class="mb-4">
+            <div class="mb-3">
+                <input type="text" id="first_name" class="form-control" placeholder="Enter the first name">
+            </div>
+            <div class="mb-3">
+                <input type="text" id="last_name" class="form-control" placeholder="Enter the last name">
+            </div>
+            <input type="button" value="Submit" py-click="result_checker" class="btn btn-primary">
+        </form>
+        <div id="output" class="p-3 rounded" style="background-color: crimson; color: chartreuse; font-size: 20px;"></div>
+    </div>
+
+    <py-script src="main.py"></py-script>
+
+    <script src="styles.css"></script>
+</body>
+</html>
